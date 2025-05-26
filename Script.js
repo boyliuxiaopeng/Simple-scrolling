@@ -4,7 +4,10 @@
 // @version      1.0
 // @description  支持快捷滚动、自定义热键、图标拖动、暗色模式、图形化设置中心，适配所有网页
 // @author       GPT、依旧天真无邪
+// @create       2025-05-09
+// @lastmodified 2025-05-09
 // @match        *://*/*
+// @copyright    GNU GENERAL PUBLIC LICENSE 3.0
 // @require      https://unpkg.com/sweetalert2@10.16.6/dist/sweetalert2.all.min.js
 // @grant        none
 // ==/UserScript==
