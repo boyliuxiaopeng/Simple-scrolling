@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         滚动助手（优化版）
-// @namespace    https://github.com/yourname/scroll-helper
+// @name         Simple-scrolling（简易滚动）
+// @namespace    https://github.com/boyliuxiaopeng/Simple-scrolling/
 // @version      1.0
 // @description  支持快捷滚动、自定义热键、图标拖动、暗色模式、图形化设置中心，适配所有网页
 // @author       GPT、依旧天真无邪
