@@ -7,7 +7,7 @@
 // @create       2025-05-09
 // @lastmodified 2025-05-09
 // @match        *://*/*
-// @copyright    GNU GENERAL PUBLIC LICENSE 3.0
+// @copyright    MIT
 // @require      https://unpkg.com/sweetalert2@10.16.6/dist/sweetalert2.all.min.js
 // @grant        none
 // ==/UserScript==
