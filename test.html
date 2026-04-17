@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Scrolling Test Page</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: #1f2937;
+      background:
+        radial-gradient(circle at top, rgba(59, 130, 246, 0.18), transparent 35%),
+        linear-gradient(180deg, #f8fbff 0%, #eef4ff 30%, #ffffff 100%);
+    }
+
+    .hero {
+      min-height: 100vh;
+      padding: 56px 20px 20px;
+    }
+
+    .card {
+      width: min(920px, 100%);
+      margin: 0 auto;
+      padding: 28px;
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 3vw, 3.2rem);
+    }
+
+    p {
+      line-height: 1.75;
+      margin: 0 0 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .section {
+      padding: 20px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #f6f9ff);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .long-content {
+      width: min(920px, 100%);
+      margin: 24px auto 0;
+      padding: 0 20px 80px;
+    }
+
+    .long-content article {
+      margin-bottom: 20px;
+      padding: 20px 22px;
+      border-radius: 20px;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    }
+  </style>
+</head>
+<body>
+  <main class="hero">
+    <section class="card">
+      <h1>Simple Scrolling Test Page</h1>
+      <p>This page is designed for quick manual testing of the userscript.</p>
+      <p>Use it to verify top, middle, bottom scrolling, drag persistence, auto show behavior, and settings updates.</p>
+      <div class="grid">
+        <div class="section">Check 1: Top button should jump to the first screen.</div>
+        <div class="section">Check 2: Middle button should land near the center.</div>
+        <div class="section">Check 3: Dragged position should persist after reload.</div>
+        <div class="section">Check 4: Saved settings should apply immediately.</div>
+      </div>
+    </section>
+
+    <section class="long-content">
+      <article><strong>Block 01</strong><p>This block helps extend the page height for scroll testing.</p></article>
+      <article><strong>Block 02</strong><p>Repeat the top, middle, and bottom actions to confirm stable behavior.</p></article>
+      <article><strong>Block 03</strong><p>Reduced motion users should see instant scrolling instead of smooth scrolling.</p></article>
+      <article><strong>Block 04</strong><p>System dark mode changes should refresh button colors when dark mode is not forced.</p></article>
+      <article><strong>Block 05</strong><p>Resize the window to verify the floating controls stay inside the viewport.</p></article>
+      <article><strong>Block 06</strong><p>This page intentionally keeps logic simple so it is easy to validate regressions.</p></article>
+      <article><strong>Block 07</strong><p>Continue scrolling to make the auto show rule more obvious during testing.</p></article>
+      <article><strong>Block 08</strong><p>You can open this file directly in a browser for a quick smoke test.</p></article>
+      <article><strong>Block 09</strong><p>Near the bottom, verify the bottom button reaches the real scroll limit.</p></article>
+      <article><strong>Block 10</strong><p>This is close to the end of the page and useful for last-step verification.</p></article>
+    </section>
+  </main>
+</body>
+</html>
