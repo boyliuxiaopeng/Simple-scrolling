@@ -23,6 +23,8 @@ A lightweight userscript that adds a draggable floating scroll helper to web pag
 
 Open [`test.html`](./test.html) in a browser to manually verify scrolling, dragging, and settings behavior.
 
+Open [`test-runner.html`](./test-runner.html) in a browser to run a lightweight automated smoke test for panel rendering, scroll actions, settings dialog opening, and auto show behavior.
+
 ## Optimizations Included
 
 - Fixed encoding-related text issues

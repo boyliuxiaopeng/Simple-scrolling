@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Scrolling Test Runner</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .panel {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .summary {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .pass {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .fail {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .case {
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      border: 1px solid #e5e7eb;
+      background: #fafafa;
+    }
+
+    .case.pass {
+      border-color: #86efac;
+      background: #f0fdf4;
+    }
+
+    .case.fail {
+      border-color: #fca5a5;
+      background: #fef2f2;
+    }
+
+    code {
+      background: #eef2ff;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <h1>Simple Scrolling Test Runner</h1>
+      <p>This page runs lightweight browser-side checks for the userscript. Open it directly in a browser after loading the repository files locally.</p>
+      <div id="summary" class="summary"></div>
+      <div id="results"></div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      const originalScrollTo = window.scrollTo.bind(window);
+      const scrollCalls = [];
+      const swalCalls = [];
+
+      function setDocumentHeight(height) {
+        Object.defineProperty(document.documentElement, 'scrollHeight', {
+          configurable: true,
+          get: function () { return height; }
+        });
+        Object.defineProperty(document.body, 'scrollHeight', {
+          configurable: true,
+          get: function () { return height; }
+        });
+      }
+
+      function setWindowScrollY(value) {
+        Object.defineProperty(window, 'scrollY', {
+          configurable: true,
+          get: function () { return value; }
+        });
+      }
+
+      window.matchMedia = window.matchMedia || function () {
+        return {
+          matches: false,
+          addEventListener: function () {},
+          removeEventListener: function () {}
+        };
+      };
+
+      window.Swal = {
+        fire: function (options) {
+          swalCalls.push(options);
+          return Promise.resolve({ isConfirmed: false });
+        }
+      };
+
+      window.scrollTo = function (options) {
+        scrollCalls.push(options);
+      };
+
+      localStorage.removeItem('ScrollHelperConfig');
+      setDocumentHeight(3000);
+      setWindowScrollY(0);
+
+      window.__testState = {
+        scrollCalls: scrollCalls,
+        swalCalls: swalCalls,
+        resetScrollCalls: function () {
+          scrollCalls.length = 0;
+        },
+        restoreScroll: function () {
+          window.scrollTo = originalScrollTo;
+        }
+      };
+    })();
+  </script>
+
+  <script src="./Script.js"></script>
+  <script>
+    (function () {
+      const resultsNode = document.getElementById('results');
+      const summaryNode = document.getElementById('summary');
+      const scrollCalls = window.__testState.scrollCalls;
+      const swalCalls = window.__testState.swalCalls;
+      const cases = [];
+
+      function assert(condition, name, detail) {
+        cases.push({ condition: Boolean(condition), name: name, detail: detail });
+      }
+
+      function click(selector) {
+        const node = document.querySelector(selector);
+        if (!node) {
+          return false;
+        }
+        node.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        return true;
+      }
+
+      function getPanel() {
+        return document.getElementById('scroll-helper-panel');
+      }
+
+      function run() {
+        const panel = getPanel();
+        const buttons = panel ? panel.querySelectorAll('button') : [];
+
+        assert(Boolean(panel), 'Panel renders on load', 'Expected #scroll-helper-panel to exist after script initialization.');
+        assert(buttons.length === 4, 'Four control buttons render', 'Expected top, middle, bottom, and settings buttons.');
+
+        window.__testState.resetScrollCalls();
+        click('#scroll-top');
+        assert(scrollCalls.length === 1 && scrollCalls[0].top === 0, 'Top button scrolls to top', 'Expected a scroll call with top = 0.');
+
+        window.__testState.resetScrollCalls();
+        click('#scroll-mid');
+        assert(scrollCalls.length === 1 && scrollCalls[0].top === 1200, 'Middle button scrolls to midpoint', 'Expected midpoint based on a 3000px page and viewport height.');
+
+        window.__testState.resetScrollCalls();
+        click('#scroll-bottom');
+        assert(scrollCalls.length === 1 && typeof scrollCalls[0].top === 'number' && scrollCalls[0].top > 2000, 'Bottom button scrolls near max', 'Expected a scroll call near the maximum scroll range.');
+
+        click('#scroll-settings');
+        assert(swalCalls.length === 1, 'Settings button opens dialog', 'Expected one call to Swal.fire.');
+
+        Object.defineProperty(window, 'scrollY', {
+          configurable: true,
+          get: function () { return 0; }
+        });
+        window.dispatchEvent(new Event('scroll'));
+        assert(getPanel().style.display === 'none', 'Auto show hides panel near top', 'Expected the panel to hide when scrollY <= 200.');
+
+        Object.defineProperty(window, 'scrollY', {
+          configurable: true,
+          get: function () { return 500; }
+        });
+        window.dispatchEvent(new Event('scroll'));
+        assert(getPanel().style.display === 'flex', 'Auto show reveals panel after scrolling', 'Expected the panel to show when scrollY > 200.');
+
+        renderResults();
+      }
+
+      function renderResults() {
+        const passed = cases.filter(function (item) { return item.condition; }).length;
+        const failed = cases.length - passed;
+
+        summaryNode.innerHTML = '';
+        resultsNode.innerHTML = '';
+
+        [
+          { label: 'Passed: ' + passed, className: 'badge pass' },
+          { label: 'Failed: ' + failed, className: failed ? 'badge fail' : 'badge pass' },
+          { label: 'Total: ' + cases.length, className: 'badge' }
+        ].forEach(function (item) {
+          const badge = document.createElement('div');
+          badge.className = item.className;
+          badge.textContent = item.label;
+          summaryNode.appendChild(badge);
+        });
+
+        cases.forEach(function (item) {
+          const node = document.createElement('div');
+          node.className = 'case ' + (item.condition ? 'pass' : 'fail');
+          node.innerHTML = '<strong>' + (item.condition ? 'PASS' : 'FAIL') + '</strong> - ' + item.name + '<br><span>' + item.detail + '</span>';
+          resultsNode.appendChild(node);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', run, { once: true });
+      } else {
+        run();
+      }
+    })();
+  </script>
+</body>
+</html>
