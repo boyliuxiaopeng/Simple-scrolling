@@ -17,7 +17,7 @@ A lightweight userscript that adds a draggable floating scroll helper to web pag
 1. Install a userscript manager such as Tampermonkey.
 2. Create a new script. & Click [Simple-scrolling
 ](https://greasyfork.org/zh-CN/scripts/586932-simple-scrolling).
-3. Paste the contents of [`Simple Scrolling.js`](./Simple Scrolling.js).
+3. Paste the contents of [`Simple Scrolling`](./Simple Scrolling.js).
 4. Save and open any page.
    
 
