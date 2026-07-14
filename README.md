@@ -1,7 +1,7 @@
 # Simple Scrolling
 ### 简单滑块
 
-[![version](https://img.shields.io/badge/version-0.0.2-blue)](simple-scrolling.user.js)
+[![version](https://img.shields.io/badge/version-1.0.4-blue)](simple-scrolling.user.js)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 A lightweight Tampermonkey userscript that adds a draggable floating panel for quick page navigation — scroll to top, middle, or bottom with one click. Keyboard shortcuts, theme-aware colors, four SVG icon styles, and a visual settings dialog included.
