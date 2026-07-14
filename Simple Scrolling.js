@@ -3,7 +3,7 @@
 // @name:zh-CN   简单滑块
 // @namespace    https://greasyfork.org/users/82488
 // @namespace    https://github.com/boyliuxiaopeng/Simple-scrolling/
-// @version      1.0.4
+// @version      1.0.5
 // @description  Lightweight floating scroll helper with drag, shortcuts, theme colors, settings, and lazy-loaded dialog.
 // @description:zh-CN  轻量级悬浮滚动助手，为任意网页添加浮动的滑块，实现快速的上下滑动，支持拖拽、快捷键、主题配色、设置面板和懒加载对话框。
 // @author       暖色浮余生
@@ -12,6 +12,7 @@
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @grant        GM_registerMenuCommand
 // @license      MIT
 // ==/UserScript==
 
@@ -856,6 +857,46 @@
 
 
   /*
+   * 12. Tampermonkey 扩展菜单 / TAMPERMONKEY MENU
+   */
+
+  /**
+   * 将常用操作注册到 Tampermonkey 弹出菜单中。
+   * 这些命令显示在 Chrome 工具栏的 Tampermonkey 图标内、当前脚本名称下方。
+   * Register common actions in Tampermonkey's extension popup menu.
+   */
+  function registerMenuCommands() {
+    if (typeof GM_registerMenuCommand !== 'function') return;
+
+    GM_registerMenuCommand('⚙️ 打开滚动助手设置', openSettings);
+
+    GM_registerMenuCommand('⚙️ 切换自动显示', function () {
+      config.autoShow = !config.autoShow;
+      saveConfig();
+      render();
+    });
+
+    GM_registerMenuCommand('⚙️ 切换快捷键', function () {
+      config.keyEnabled = !config.keyEnabled;
+      saveConfig();
+      render();
+    });
+
+    GM_registerMenuCommand('⚙️ 重置面板位置', function () {
+      config.iconPos = { ...defaultConfig.iconPos };
+      saveConfig();
+      render();
+    });
+
+    GM_registerMenuCommand('⚙️ 恢复默认设置', function () {
+      Object.assign(config, mergeConfig({}));
+      saveConfig();
+      render();
+    });
+  }
+
+
+  /*
    * 12. 键盘快捷键 / KEYBOARD SHORTCUTS
    */
 
@@ -1030,6 +1071,7 @@
 
   function init() {
     if (!document.body) return;
+    registerMenuCommands();
     render();
   }
 
