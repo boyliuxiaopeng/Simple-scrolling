@@ -22,7 +22,7 @@
 ## Installation
 
 1. Install [Tampermonkey](https://www.tampermonkey.net/) (or Violentmonkey / Greasemonkey).
-2. Click **Simple Scrolling** → **Raw** on the script file, or copy [`simple-scrolling.user.js`](simple-scrolling.user.js) into a new userscript.
+2. Click **Simple Scrolling** → **Raw** on the script file, or copy [`simple-scrolling.js`](simple-scrolling.js) into a new userscript.
 3. The panel appears on every page you visit.
 
 ## Usage
