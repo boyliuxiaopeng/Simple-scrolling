@@ -12,8 +12,8 @@
 // @match        *://*/*
 // @run-at       document-idle
 // @noframes
-// @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        GM_setValue
 // @license      MIT
 // ==/UserScript==
 
