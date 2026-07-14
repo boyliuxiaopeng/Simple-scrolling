@@ -6,45 +6,45 @@
 
 这是一款轻量级的 Tampermonkey 用户脚本，可为快速页面导航添加一个可拖动的浮动面板--只需点击一下即可滚动到顶部、中部或底部。包含键盘快捷键、主题识别颜色、四种 SVG 图标样式和一个可视化设置对话框。
 
-## Features
+## 特点
 
-- 浮动面板** - 四个按钮（顶部-中间-底部-设置）固定在右下角
-- **拖动重新定位** - 通过统一的指针事件进行鼠标、触摸和笔输入；可跨页记忆位置
-- **键盘快捷键** - `Ctrl + ↑` / `Ctrl + ↓`（可自定义），在文本字段内忽略
-- **四种图标样式** - 轮廓、雪佛龙、实心和圆角；右击或长按齿轮可循环使用
+- **浮动面板** - 默认四个按钮（顶部-中间-底部-设置）固定在右下角
+- **支持拖动** - 通过统一的指针事件进行鼠标、触摸和笔输入；可跨页记忆位置
+- **快捷键** - `Ctrl + ↑` / `Ctrl + ↓`（可自定义），在文本字段内忽略
+- **图标样式** - 轮廓、雪佛龙、实心和圆角；右击或长按齿轮可循环使用
 - **主题感知** - 自动检测系统亮/暗模式；可选的强制变暗切换
-- **5 种颜色预设** - 蓝色、绿色、紫色、红色、灰色；支持自定义颜色
+- **颜色预设** - 蓝色、绿色、紫色、红色、灰色；支持自定义颜色
 - **视觉设置** - SweetAlert2 对话框（懒加载，每页保存 ~70 KB 直至需要）
 - **跨网站配置** - GM 存储可在所有网站上保持同一配置；本地存储后备
-- **尊重 "优先减少运动 "** - 当操作系统要求时，切换到即时滚动
+- **尊重能耗** - 当操作系统要求时，切换到即时滚动
 - **框架安全** - "@noframes "防止嵌入框架内的重复面板
 
-## Installation
+## 安装
 
-1. Install [Tampermonkey](https://www.tampermonkey.net/) (or Violentmonkey / Greasemonkey).
-2. Click **Simple Scrolling** → **Raw** on the script file, or copy [`simple-scrolling.js`](simple-scrolling.js) into a new userscript.
-3. The panel appears on every page you visit.
+1. 安装油猴 [Tampermonkey](https://www.tampermonkey.net/) (or Violentmonkey / Greasemonkey).
+2. 点击 [**Simple Scrolling**](https://greasyfork.org/zh-CN/scripts/586932-simple-scrolling) 跳转到 Tampermonkey 仓库安装, 或者本仓库打开 [`simple-scrolling.js`](simple-scrolling.js) 复制到新建一个新脚本。
+3. 刷新即可看到脚本面板。
 
-## Usage
+## 简单使用
 
 | Action             | How                                                      |
 | ------------------ | -------------------------------------------------------- |
-| Scroll to top      | Click **↑**                                              |
-| Scroll to middle   | Click **─**                                              |
-| Scroll to bottom   | Click **↓**                                              |
-| Open settings      | Click **⚙**                                              |
-| Cycle icon style   | **Right-click** ⚙ (desktop) or **long-press** ⚙ (mobile) |
-| Move the panel     | **Drag** any button                                      |
-| Keyboard shortcuts | `Ctrl + ↑` / `Ctrl + ↓` (customizable)                   |
+| 滚动到最上面      | Click **↑**                                              |
+| 滚动到中间        | Click **─**                                              |
+| 滚动到最下面      | Click **↓**                                              |
+| 打开设置          | Click **⚙**                                              |
+| 图标风格          | **Right-click** ⚙ (desktop) or **long-press** ⚙ (mobile) |
+| 移动面板          | **Drag** any button                                      |
+| 快捷键            | `Ctrl + ↑` / `Ctrl + ↓` (customizable)                   |
 
-### Settings
+### 详细设置
 
 The settings dialog lets you tweak every visual aspect:
 
 | Setting                       | Range / Options                     | Default                           |
 | ----------------------------- | ----------------------------------- | --------------------------------- |
-| Icon size                     | 14–48 px                            | 18                                |
-| Icon style                    | Outline / Chevron / Solid / Rounded | Outline                           |
+| 图标尺寸                     | 14–48 px                            | 18                                |
+| 图标风格                    | Outline / Chevron / Solid / Rounded | Outline                           |
 | Icon scale                    | 40–75%                              | 58                                |
 | Stroke width                  | 1–4                                 | 2.25                              |
 | Corner radius                 | 0–24 px                             | 12                                |
@@ -79,7 +79,7 @@ Changes take effect immediately when you click **Save**.
 - **懒人对话框**：SweetAlert2 仅在第一次点击 ⚙ 时通过 `<script>` 标记注入。随后的打开将重复使用缓存的承诺。
 - 安全性**：所有用户提供的值（颜色、大小、键）在使用前都经过了消毒处理。设置输入的作用域为 Swal 弹出窗口，以避免与主机页面的 ID 冲突。
 
-## Browser support
+## 浏览器支持
 
 | Feature                  | Chrome | Firefox | Safari | Edge |
 | ------------------------ | ------ | ------- | ------ | ---- |
