@@ -3,12 +3,10 @@
 // @name:zh-CN   简单滑块
 // @namespace    https://greasyfork.org/users/82488
 // @namespace    https://github.com/boyliuxiaopeng/Simple-scrolling/
-// @version      1.0.3
+// @version      1.0.4
 // @description  Lightweight floating scroll helper with drag, shortcuts, theme colors, settings, and lazy-loaded dialog.
 // @description:zh-CN  轻量级悬浮滚动助手，为任意网页添加浮动的滑块，实现快速的上下滑动，支持拖拽、快捷键、主题配色、设置面板和懒加载对话框。
 // @author       暖色浮余生
-// @create       2025-05-09
-// @lastmodified 2026-07-14
 // @match        *://*/*
 // @run-at       document-idle
 // @noframes
@@ -124,10 +122,13 @@
     return Math.min(Math.max(number, min), max);
   }
 
-  /** 只接受 #rgb / #rrggbb / #rrggbbaa 格式的十六进制颜色字符串。
-   *  Accept only #rgb / #rrggbb / #rrggbbaa hex strings. */
+  /** 只接受 CSS 合法的 #rgb / #rgba / #rrggbb / #rrggbbaa 十六进制颜色字符串。
+   *  Accept only valid CSS #rgb / #rgba / #rrggbb / #rrggbbaa hex colours. */
   function sanitizeColor(value, fallback) {
-    return /^#[0-9a-fA-F]{3,8}$/.test(value) ? value : fallback;
+    return typeof value === 'string' &&
+      /^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value)
+      ? value
+      : fallback;
   }
 
   /**
@@ -139,6 +140,12 @@
    * whether from storage or the settings dialog.
    */
   function mergeConfig(rawConfig) {
+    // JSON.parse('null') 等值虽能解析，但并不是可合并的配置对象。
+    // A successfully parsed JSON value is not necessarily a mergeable config object.
+    if (!rawConfig || typeof rawConfig !== 'object' || Array.isArray(rawConfig)) {
+      rawConfig = {};
+    }
+
     const merged = {
       ...defaultConfig,
       ...rawConfig,
@@ -203,7 +210,8 @@
     dragCleanup: null,     // function — 拆除指针事件监听 / tears down pointer listeners
     scrollCleanup: null,   // function — 拆除滚动/窗口大小监听 / tears down scroll/resize listeners
     keydownHandler: null,  // function — 当前键盘监听器 / the current keyboard listener
-    mediaHandler: null     // function — 监听系统配色方案变化 / listens for prefers-color-scheme changes
+    mediaHandler: null,    // function — 监听系统配色方案变化 / listens for prefers-color-scheme changes
+    suppressNextClick: false // long-press / drag 后阻止合成 click / suppress synthetic click after long-press or drag
   };
 
 
@@ -448,10 +456,23 @@
       button.style.transform = 'scale(1.08)';
     });
 
+    // 拖拽使用指针捕获时，某些浏览器不会再自动生成 click。
+    // 因此非拖拽的 pointerup 直接执行动作；随后的 click 仅负责兼容键盘操作。
+    button.addEventListener('pointerup', function (event) {
+      if (event.button !== 0 && event.pointerType === 'mouse') return;
+      if (state.isDragged || state.suppressNextClick) return;
+
+      state.suppressNextClick = true;
+      onClick();
+      // 若浏览器没有派发 click，不让标记影响下一次正常操作。
+      setTimeout(function () { state.suppressNextClick = false; }, 0);
+    });
+
     // ---- 点击：如果指针刚完成拖拽则忽略本次点击 / ignore click after drag ----
     button.addEventListener('click', function (event) {
-      if (state.isDragged) {
+      if (state.isDragged || state.suppressNextClick) {
         state.isDragged = false;
+        state.suppressNextClick = false;
         event.preventDefault();
         event.stopPropagation();
         return;
@@ -549,6 +570,7 @@
    */
   function bindDrag() {
     var pointerId = null;  // 跟踪活动指针跨越 move/up / tracks the active pointer across move/up
+    var captureTarget = null;
     var startX = 0;
     var startY = 0;
 
@@ -581,14 +603,16 @@
       if (pointerId === null || event.pointerId !== pointerId) return;
 
       pointerId = null;
-      if (state.panel) {
-        state.panel.releasePointerCapture(event.pointerId);
+      if (captureTarget && captureTarget.hasPointerCapture(event.pointerId)) {
+        captureTarget.releasePointerCapture(event.pointerId);
       }
+      captureTarget = null;
       // 仅在确实发生了拖拽时才持久化位置。
       // Only persist config when the user actually dragged.
       if (state.isDragged) {
         saveConfig();
       }
+      state.isDragged = false;
     };
 
     var onPointerDown = function (event) {
@@ -596,12 +620,23 @@
       // Accept only primary button for mouse; touch/pen always pass through.
       if (event.button !== 0 && event.pointerType === 'mouse') return;
 
+      // 按钮只负责滚动或打开设置。拖拽从面板边缘或按钮间空白区域开始，
+      // 避免 Chrome 在按钮上使用指针捕获时改变 click 的派发行为。
+      // Buttons are reserved for actions. Drag from the panel padding or gaps,
+      // avoiding Chrome's pointer-capture differences for buttons.
+      if (event.target !== state.panel) return;
+
       state.isDragged = false;
       pointerId = event.pointerId;
       startX = event.clientX;
       startY = event.clientY;
-      state.panel.setPointerCapture(event.pointerId);
-      event.preventDefault();
+      captureTarget = state.panel;
+      captureTarget.setPointerCapture(event.pointerId);
+      // 不在 pointerdown 阶段取消默认事件：部分浏览器会因此不再为
+      // button 派发 click，导致滚动和设置按钮失效。面板的 touch-action:
+      // none 已足以阻止触屏拖拽被解释成页面滚动。
+      // Do not cancel pointerdown: some browsers then suppress the button's
+      // click event. touch-action: none already handles touch dragging.
     };
 
     state.panel.addEventListener('pointerdown', onPointerDown);
@@ -621,7 +656,7 @@
 
 
   /*
-   * 11. 设置对话框（SweetAlert2，懒加载） / SETTINGS DIALOG (lazy-loaded)
+   * 11. 设置对话框 / SETTINGS DIALOG
    */
 
   /** 构建设置表单 HTML。所有 ID 均有前缀以避免与宿主页面冲突。
@@ -720,9 +755,9 @@
   }
 
   /**
-   * 从已打开的 Swal 弹窗中读取每个字段、校验后写入 config。
-   * Read every field from the open Swal popup, validate, and write to config.
-   * @param {HTMLElement} popup — Swal.getPopup() 的返回值 / Swal.getPopup() result
+   * 从已打开的设置弹窗中读取每个字段、校验后写入 config。
+   * Read every field from the open settings dialog, validate, and write to config.
+   * @param {HTMLElement} popup — settings dialog element
    */
   function applySettingsFromDialog(popup) {
     var field = function (id) { return popup.querySelector('#' + id); };
@@ -745,53 +780,16 @@
   }
 
 
-  /* ---- SweetAlert2 懒加载器 / lazy-loader ---- */
-
-  /** 缓存的 Promise，避免多次点击重复注入 <script>。
-   *  Cached promise so multiple clicks don't re-inject the <script>. */
-  var swalPromise = null;
+  /* ---- 原生设置对话框 / NATIVE SETTINGS DIALOG ---- */
 
   /**
-   * 首次打开设置时动态注入 SweetAlert2。
-   * 加载成功后后续调用立即 resolve；出错时清空缓存以允许重试一次。
-   *
-   * Dynamically inject SweetAlert2 the first time settings are opened.
-   * Once loaded, the promise resolves instantly on subsequent calls.
-   * On error the promise is nullified to allow one retry.
+   * 使用浏览器原生 <dialog>，避免在当前网页上下文加载并执行第三方 CDN 脚本。
+   * Uses a native <dialog>, avoiding third-party code execution in the current page.
    */
-  function loadSwal() {
-    if (typeof Swal !== 'undefined') {
-      return Promise.resolve();
-    }
-    if (swalPromise) {
-      return swalPromise;
-    }
-    swalPromise = new Promise(function (resolve, reject) {
-      var script = document.createElement('script');
-      script.src = 'https://unpkg.com/sweetalert2@10.16.6/dist/sweetalert2.all.min.js';
-      script.onload = function () { resolve(); };
-      script.onerror = function () {
-        swalPromise = null;   // 允许重试一次 / allow one retry
-        reject(new Error('SweetAlert2 load failed'));
-      };
-      document.head.appendChild(script);
-    });
-    return swalPromise;
-  }
-
-  /** 公开入口——先懒加载、再显示弹窗。
-   *  Public entry point — lazy-load then show. */
   function openSettings() {
-    loadSwal().then(function () {
-      _showSettingsDialog();
-    }).catch(function () {
-      alert('Simple Scrolling: the settings dialog failed to load (it may be blocked by this site\'s security policy).\n\n设置对话框加载失败（可能被本站的安全策略拦截）。');
-    });
-  }
+    var existingDialog = document.getElementById('scroll-helper-settings-dialog');
+    if (existingDialog) return;
 
-  /** 仅在确认 Swal 可用后调用。
-   *  Called only after Swal is confirmed to be available. */
-  function _showSettingsDialog() {
     var colorPresets = {
       Blue:   { light: '#007BFF', dark: '#444444', settings: '#FFB800' },
       Green:  { light: '#28A745', dark: '#2D5016', settings: '#FFD700' },
@@ -800,35 +798,60 @@
       Gray:   { light: '#495057', dark: '#212529', settings: '#6C757D' }
     };
 
-    Swal.fire({
-      title: 'Scroll helper settings / 滚动助手设置',
-      html: buildSettingsHtml(colorPresets),
-      confirmButtonText: 'Save / 保存',
-      showCancelButton: true,
-      cancelButtonText: 'Cancel / 取消',
-      focusConfirm: false,
-
-      // 弹窗挂载到 DOM 后再连接颜色预设按钮的事件。
-      // Wire up colour-preset buttons after the popup is in the DOM.
-      didOpen: function () {
-        var popup = Swal.getPopup();
-        popup.querySelectorAll('.scroll-helper-preset').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            popup.querySelector('#set-lightColor').value    = btn.dataset.light;
-            popup.querySelector('#set-darkColor').value     = btn.dataset.dark;
-            popup.querySelector('#set-settingsColor').value = btn.dataset.settings;
-          });
-        });
-      },
-
-      preConfirm: function () {
-        applySettingsFromDialog(Swal.getPopup());
-      }
-    }).then(function (result) {
-      if (result.isConfirmed) {
-        render();   // 按新配置完整重建面板 / full rebuild with new config
-      }
+    var dialog = document.createElement('dialog');
+    dialog.id = 'scroll-helper-settings-dialog';
+    dialog.setAttribute('aria-label', 'Scroll helper settings / 滚动助手设置');
+    dialog.innerHTML = [
+      '<div style="padding:20px;min-width:min(420px,calc(100vw - 48px));max-width:calc(100vw - 48px);box-sizing:border-box">',
+        '<h2 style="margin:0 0 16px;font-size:18px">Scroll helper settings / 滚动助手设置</h2>',
+        buildSettingsHtml(colorPresets),
+        '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px">',
+          '<button type="button" id="scroll-helper-cancel">Cancel / 取消</button>',
+          '<button type="button" id="scroll-helper-save">Save / 保存</button>',
+        '</div>',
+      '</div>'
+    ].join('');
+    Object.assign(dialog.style, {
+      border: '0',
+      borderRadius: '10px',
+      padding: '0',
+      color: '#222',
+      background: '#fff',
+      boxShadow: '0 12px 36px rgba(0,0,0,.32)'
     });
+
+    var closeDialog = function () {
+      if (dialog.open && typeof dialog.close === 'function') dialog.close();
+      dialog.remove();
+    };
+
+    dialog.querySelectorAll('.scroll-helper-preset').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        dialog.querySelector('#set-lightColor').value = btn.dataset.light;
+        dialog.querySelector('#set-darkColor').value = btn.dataset.dark;
+        dialog.querySelector('#set-settingsColor').value = btn.dataset.settings;
+      });
+    });
+    dialog.querySelector('#scroll-helper-cancel').addEventListener('click', closeDialog);
+    dialog.querySelector('#scroll-helper-save').addEventListener('click', function () {
+      applySettingsFromDialog(dialog);
+      closeDialog();
+      render();
+    });
+    dialog.addEventListener('cancel', function () { dialog.remove(); });
+
+    document.body.appendChild(dialog);
+    if (typeof dialog.showModal === 'function') {
+      dialog.showModal();
+    } else {
+      // Fallback for older browsers that have no dialog API.
+      dialog.setAttribute('open', '');
+      dialog.style.position = 'fixed';
+      dialog.style.zIndex = '100000';
+      dialog.style.top = '50%';
+      dialog.style.left = '50%';
+      dialog.style.transform = 'translate(-50%, -50%)';
+    }
   }
 
 
@@ -897,6 +920,7 @@
       display: 'flex',
       flexDirection: 'column',
       gap: `${config.iconGap}px`,
+      padding: '4px',
       zIndex: '99999',
       opacity: String(config.panelOpacity / 100),
       cursor: 'move',
@@ -925,16 +949,31 @@
     // Long-press on gear → cycle icon style (mobile, no right-click)
     (function () {
       var pressTimer = null;
-      settingsButton.addEventListener('pointerdown', function () {
+      var longPressTriggered = false;
+      settingsButton.addEventListener('pointerdown', function (event) {
+        if (event.button !== 0 && event.pointerType === 'mouse') return;
+        longPressTriggered = false;
         pressTimer = setTimeout(function () {
           // 仅当指针没有拖动面板时才切换。
           // Only cycle if the pointer hasn't been dragging the panel.
-          if (!state.isDragged) cycleIconStyle();
+          if (!state.isDragged) {
+            longPressTriggered = true;
+            state.suppressNextClick = true;
+            cycleIconStyle();
+            // 重渲染会移除正在按住的按钮；若浏览器不再派发 click，
+            // 则在本轮事件结束后清理标记，避免影响下一次正常点击。
+            // Rendering removes the pressed button; clear the marker after this event
+            // turn in case the browser consequently does not dispatch a click.
+            setTimeout(function () { state.suppressNextClick = false; }, 0);
+          }
         }, 600);
       });
       var clearPress = function () {
         clearTimeout(pressTimer);
         pressTimer = null;
+        // 长按已经完成时，click 事件由 createButton() 中的标记统一吞掉。
+        // After a completed long press, createButton() consumes the synthetic click.
+        if (longPressTriggered) longPressTriggered = false;
       };
       settingsButton.addEventListener('pointerup',     clearPress);
       settingsButton.addEventListener('pointercancel', clearPress);
