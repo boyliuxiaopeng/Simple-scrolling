@@ -39,25 +39,25 @@
 
 ### 详细设置
 
-The settings dialog lets you tweak every visual aspect:
+设置面板可供选择的调整选项:
 
-| Setting                       | Range / Options                     | Default                           |
-| ----------------------------- | ----------------------------------- | --------------------------------- |
-| 图标尺寸                     | 14–48 px                            | 18                                |
+| 设定                       | 区间 / 选择                          | 默认                              |
+| -------------------------- | ----------------------------------- | --------------------------------- |
+| 面板尺寸                    | 14–48 px                            | 18                                |
 | 图标风格                    | Outline / Chevron / Solid / Rounded | Outline                           |
-| Icon scale                    | 40–75%                              | 58                                |
-| Stroke width                  | 1–4                                 | 2.25                              |
-| Corner radius                 | 0–24 px                             | 12                                |
-| Opacity                       | 20–100%                             | 60                                |
-| Light / Dark / Settings color | Any hex                             | `#007BFF` / `#444444` / `#FFB800` |
-| Auto-show                     | on/off                              | on (hide when scrolled < 200px)   |
-| Shortcut keys                 | Arrow/Page/Home/End/WASD            | ArrowUp / ArrowDown               |
-| Enable shortcuts              | on/off                              | on                                |
-| Force dark theme              | on/off                              | off                               |
+| 图标尺寸                    | 40–75%                              | 58                                |
+| 线条宽度                    | 1–4                                 | 2.25                              |
+| 圆角半径                    | 0–24 px                             | 12                                |
+| 不透明度                    | 20–100%                             | 60                                |
+| 亮 / 暗 / 自定义            | Any hex                             | `#007BFF` / `#444444` / `#FFB800` |
+| 自动显示                    | on/off                              | on (hide when scrolled < 200px)   |
+| 快捷键                      | Arrow/Page/Home/End/WASD            | ArrowUp / ArrowDown               |
+| 启用快捷键                  | on/off                              | on                                |
+| 强制暗黑模式                | on/off                              | off                               |
 
-Changes take effect immediately when you click **Save**.
+更改将在您点击**保存**时立即生效。
 
-## How it works
+## 如何工作
 
 ```
 ┌──────────────────────────────────────────┐
@@ -74,28 +74,28 @@ Changes take effect immediately when you click **Save**.
 └──────────────────────────────────────────┘
 ```
 
-- 存储**：使用 `GM_getValue`/`GM_setValue` 进行跨原点持久化；当 GM 不可用时，按原点退回到 `localStorage`。
-- 渲染**：render()`是惰性的，它会销毁旧面板，创建新面板，并重新绑定所有监听器。每次配置更改都会通过 `mergeConfig()` 进行反馈，它将验证并箝位所有值。
-- **懒人对话框**：SweetAlert2 仅在第一次点击 ⚙ 时通过 `<script>` 标记注入。随后的打开将重复使用缓存的承诺。
-- 安全性**：所有用户提供的值（颜色、大小、键）在使用前都经过了消毒处理。设置输入的作用域为 Swal 弹出窗口，以避免与主机页面的 ID 冲突。
+- 存储：使用 `GM_getValue`/`GM_setValue` 进行跨原点持久化；当 GM 不可用时，按原点退回到 `localStorage`。
+- 渲染：render()`是惰性的，它会销毁旧面板，创建新面板，并重新绑定所有监听器。每次配置更改都会通过 `mergeConfig()` 进行反馈，它将验证并箝位所有值。
+- 懒人对话框：SweetAlert2 仅在第一次点击 ⚙ 时通过 `<script>` 标记注入。随后的打开将重复使用缓存的承诺。
+- 安全性：所有用户提供的值（颜色、大小、键）在使用前都经过了消毒处理。设置输入的作用域为 Swal 弹出窗口，以避免与主机页面的 ID 冲突。
 
 ## 浏览器支持
 
 | Feature                  | Chrome | Firefox | Safari | Edge |
 | ------------------------ | ------ | ------- | ------ | ---- |
-| Panel & buttons          | ✅    | ✅      | ✅      | ✅    |
-| Pointer drag             | ✅    | ✅      | ✅ 13+  | ✅    |
-| Touch / long-press       | ✅    | ✅      | ✅      | ✅    |
-| Keyboard shortcuts       | ✅    | ✅      | ✅      | ✅    |
-| Dark mode detection      | ✅    | ✅      | ✅      | ✅    |
-| `prefers-reduced-motion` | ✅    | ✅      | ✅      | ✅    |
+| 面板 & 按钮          | ✅    | ✅      | ✅      | ✅    |
+| 面板拖动             | ✅    | ✅      | ✅ 13+  | ✅    |
+| 触摸/长按            | ✅    | ✅      | ✅      | ✅    |
+| 快捷键               | ✅    | ✅      | ✅      | ✅    |
+| 暗黑模式检测          | ✅    | ✅      | ✅      | ✅    |
+| 减少动画效果          | ✅    | ✅      | ✅      | ✅    |
 
 ## License
 
-MIT — see the `@copyright` header in the script.
+MIT
 
 ## Credits
 
-- Icons: [Feather](https://feathericons.com/) (MIT) for Outline / Chevron strokes; Material gear (Apache-2.0) for Solid / Rounded fills.
-- Settings dialog: [SweetAlert2](https://sweetalert2.github.io/) (MIT).
-- Authorship: Original by GPT & [@boyliuxiaopeng](https://github.com/boyliuxiaopeng); reviewed and hardened multiple passes.
+- 图标: [Feather](https://feathericons.com/) (MIT) for Outline / Chevron strokes; Material gear (Apache-2.0) for Solid / Rounded fills.
+- 设定对话框: [SweetAlert2](https://sweetalert2.github.io/) (MIT)。
+- 作者: [@boyliuxiaopeng](https://github.com/boyliuxiaopeng)。
