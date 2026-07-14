@@ -1,4 +1,5 @@
 # Simple Scrolling
+### 简单滑块
 
 [![version](https://img.shields.io/badge/version-0.0.2-blue)](simple-scrolling.user.js)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
