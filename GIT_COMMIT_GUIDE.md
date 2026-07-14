@@ -26,7 +26,7 @@ git add CHANGELOG.md
 
 ### 4. 提交更改
 ```powershell
-git commit -m "v1.1: 新增颜色定制、优化拖动交互、修复暗色模式问题
+git commit -m "v1.0.4: 新增颜色定制、优化拖动交互、修复暗色模式问题
 
 - 支持自定义浅色/暗色模式及设置按钮颜色
 - 新增5个预置配色方案（蓝色经典、绿色清爽等）
@@ -54,7 +54,7 @@ git push origin master
 - `CHANGELOG.md` - 版本更新日志
 
 ### 修改文件
-- `Script.js` - 版本升级到 v1.1
+- `Script.js` - 版本升级到 v1.0.4
   - 颜色定制系统
   - 拖动交互优化
   - 暗色模式修复
