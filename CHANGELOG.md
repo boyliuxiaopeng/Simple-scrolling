@@ -1,5 +1,4 @@
 # 更新日志 (Changelog)
-# 更新日志
 
 本文档记录 Simple Scrolling 用户脚本的所有重要变更。
 
